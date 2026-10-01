@@ -7,12 +7,13 @@ Summary:	SNMP engine for Python
 Summary(pl.UTF-8):	Obsługa SNMP dla Pythona
 Name:		python3-%{module}
 Version:	7.1.30
-Release:	1
+Release:	2
 License:	BSD
 Group:		Libraries/Python
 # PyPI sdist lacks tests and examples
 Source0:	https://github.com/lextudio/pysnmp/archive/v%{version}/%{module}-%{version}.tar.gz
 # Source0-md5:	362fa55079441d9160d28a545945192e
+Patch0:		parser-reuse.patch
 URL:		https://www.pysnmp.com/
 BuildRequires:	python3 >= 1:3.10
 BuildRequires:	python3-build
@@ -21,7 +22,8 @@ BuildRequires:	python3-installer
 BuildRequires:	python3-modules >= 1:3.10
 %if %{with tests}
 BuildRequires:	mibs-net-snmp
-BuildRequires:	python3-cryptography
+# decrepit.ciphers.modes.CFB (AES privacy) appeared in 47.0.0
+BuildRequires:	python3-cryptography >= 47.0.0
 BuildRequires:	python3-pyasn1 >= 0.6.4
 BuildRequires:	python3-pysmi >= 2.0.0
 BuildRequires:	python3-pytest >= 7.2.0
@@ -30,8 +32,9 @@ BuildRequires:	python3-pytest-asyncio >= 0.21.1
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 2.044
 Requires:	python3-modules >= 1:3.10
-# DES/3DES/AES privacy for SNMPv3 USM; imported lazily, so not autodetected
-Requires:	python3-cryptography
+# DES/3DES/AES privacy for SNMPv3 USM; imported lazily, so not autodetected;
+# decrepit.ciphers.modes.CFB (AES privacy) appeared in 47.0.0
+Requires:	python3-cryptography >= 47.0.0
 Suggests:	python3-pysmi
 BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -61,6 +64,7 @@ Ten pakiet zawiera przykładowe programy do modułu Pythona pysnmp.
 
 %prep
 %setup -q -n %{module}-%{version}
+%patch -P0 -p1
 
 %build
 %py3_build_pyproject
